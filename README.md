@@ -43,4 +43,23 @@ Next.js · React · TypeScript · Prisma · Twilio · Resend · HubSpot CRM API
 
 ---
 
+### Cape Fear Web Co — Acquisition & delivery system
+
+End-to-end **studio website** plus **client delivery portal**: marketing, SEO (JSON-LD, sitemap generation), markdown blog, typed on-site case summaries linking here for long-form notes, and a **Supabase**-backed `/portal` for messages, structured requests, private file uploads, activity history, and optional **Resend** alerts via a **Vercel** serverless API.
+
+**Stack**
+
+React · TypeScript · Vite · React Router · Tailwind · TanStack Query · Supabase (Auth, Postgres, Storage, RLS) · Vercel Functions
+
+**Highlights**
+
+- One SPA: public routes and authenticated portal; clear separation without two deploy pipelines
+- Build-time sitemap + structured data (`SoftwareCompany`, `BlogPosting`, `Article`, breadcrumbs)
+- Content model: TypeScript case records + blog markdown with cross-links to shipped-work narratives
+- Delivery layer: threaded messages, typed client requests with status workflow, storage-backed files, DB-driven activity timeline, JWT-verified notify endpoint
+
+→ **[Read the full case study](./cape-fear-web-co.md)**
+
+---
+
 Additional case studies will be added over time as I’m able to share more work publicly.
