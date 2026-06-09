@@ -39,7 +39,7 @@ The point is intentional: **positioning, crawlable content, and delivery mechani
 | **Frontend** | React 18, TypeScript, Vite, React Router 6, Tailwind, shadcn-style UI primitives, TanStack Query for portal data fetching. |
 | **Content — cases** | `src/content/cases.ts`: structured `CaseStudy` objects rendered by `/case-studies` and `/case-studies/:slug`. |
 | **Content — blog** | Markdown under `content/blog/*.md`, loaded at build time via `import.meta.glob` + `gray-matter` in `src/content/loadBlog.ts`. |
-| **SEO** | `Seo` component: canonical URLs from `VITE_SITE_URL` (with documented fallback origin), OG/Twitter tags, optional `noindex` for portal login. JSON-LD builders in `src/lib/schema.ts` (e.g. `SoftwareCompany`, `BlogPosting`, `Article` for cases, `BreadcrumbList`). |
+| **SEO** | `Seo` component: canonical URLs from site config, OG/Twitter tags, optional `noindex` for portal login. JSON-LD builders in `src/lib/schema.ts` (e.g. `SoftwareCompany`, `BlogPosting`, `Article` for cases, `BreadcrumbList`). |
 | **Sitemap** | `prebuild` runs `generate-sitemap.mjs`: static routes, case slugs (kept in sync with `cases.ts`), blog paths from frontmatter `slug` / `date` / `updated`. |
 | **Supabase** | Auth (email OTP), Postgres schema for orgs, members (`client` \| `studio`), projects, threads/messages, `client_requests`, `project_files`, `activity_events`. Private bucket `portal-files` with path convention `{organization_id}/{project_id}/…`. RLS and triggers in `supabase/migrations/001_portal_companion.sql`. |
 | **Portal routes** | `PortalApp`: `/portal/login`, authenticated layout with dashboard, settings, and `projects/:projectId` with nested `overview`, `messages`, `requests`, `files`. |
@@ -63,7 +63,7 @@ The point is intentional: **positioning, crawlable content, and delivery mechani
 - **Requests / tickets** — `client_requests` with type (`bug`, `change`, `question`, `asset_needed`), status workflow (`submitted` → `reviewing` → `in_progress` → `resolved`), optional priority (`normal` / `urgent`).
 - **Files** — Uploads to private storage; metadata in `project_files` with optional link to a request.
 - **Activity** — `activity_events` table with enum types such as `message_created`, `request_created`, `request_status_changed`, `file_uploaded`; triggers log events; the project overview queries the latest rows for a lightweight timeline.
-- **Notifications** — `dispatchStudioNotification` sends a typed payload (`message` | `request` | `file`) to `/api/notify` in production (or logs in dev unless `VITE_NOTIFY_IN_DEV=true`). Server verifies membership, then Resend email if configured. No SMS in this path today—the abstraction is documented as swappable.
+- **Notifications** — `dispatchStudioNotification` sends a typed payload (`message` | `request` | `file`) to `/api/notify` in production (or logs in dev when notifications are disabled). Server verifies membership, then sends email through Resend when configured. No SMS in this path today—the abstraction is documented as swappable.
 
 **What is intentionally simple:**
 
@@ -87,7 +87,7 @@ The point is intentional: **positioning, crawlable content, and delivery mechani
 - **Portal minimalism** — Clients get structure, not a productized “agency OS.” Some buyers expect Kanban-heavy UX; this implementation optimizes for clarity and low maintenance.
 - **No billing/contracts in-app** — Commercial workflow stays on Contra (or elsewhere). The portal will never show invoice state unless someone builds it—explicit non-goal.
 - **Slower non-engineer content iteration** — New posts require markdown + build; case studies require TypeScript list updates **and** sitemap slug list alignment (`generate-sitemap.mjs` duplicates case slugs by design comment).
-- **No SSR** — Vite SPA + Helmet means crawlers that execute JavaScript see meta tags; edge cases (some social scrapers, strict latency budgets) may still favor pre-rendered HTML. The README documents `VITE_SITE_URL` for canonicals; local dev falls back to a documented production origin for SEO helpers.
+- **No SSR** — Vite SPA + Helmet means crawlers that execute JavaScript see meta tags; edge cases (some social scrapers, strict latency budgets) may still favor pre-rendered HTML. Canonical URLs come from site configuration rather than hard-coded paths in the case study.
 
 Stating these plainly matters: the system is optimized for **truthful positioning and sustainable operations**, not for pretending to be a mature SaaS platform.
 

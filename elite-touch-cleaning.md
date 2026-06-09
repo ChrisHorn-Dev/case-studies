@@ -35,7 +35,7 @@ The goal is not feature expansion. It is replacing **invisible, inconsistent wor
 
 **Stack:** Next.js App Router, React 19, TypeScript, Tailwind, Prisma.
 
-The default datasource is **SQLite** for local development. **Production is intended to use PostgreSQL** via `DATABASE_URL` and switching the Prisma datasource provider in `schema.prisma`, as documented in **`.env.example`** and schema comments—**not** an automated migration pipeline shipped in this repository.
+The default datasource is **SQLite** for local development. **Production is intended to use PostgreSQL** by changing the Prisma datasource provider in `schema.prisma`—**not** an automated migration pipeline shipped in this repository.
 
 **Implemented end-to-end**
 

@@ -1,84 +1,40 @@
 # Media Authenticity API
 
-**Status:** Published overview — complements public repository  
-**Repo:** Public — [github.com/ChrisHorn-Dev/media-auth-api](https://github.com/ChrisHorn-Dev/media-auth-api)  
-**Screenshot status:** Pending  
+Short overview of the public [media-auth-api](https://github.com/ChrisHorn-Dev/media-auth-api) repository. Setup, env vars, and endpoint details live in that repo's README.
 
----
+## What it does
 
-## Overview
+HTTP API that accepts an uploaded image, runs it through one or more detectors, and returns a signed result. A separate verify endpoint lets a client check later that the result wasn't changed.
 
-Verification-oriented **HTTP API** that analyzes uploaded images for likely synthetic vs likely authentic content, returns **HMAC-signed authenticity records**, and exposes `POST /api/verify` so clients can confirm results were not tampered with.
+## Why I built it
 
-Public code is the proof; this case study explains the **system design** for recruiters and technical peers.
-
----
-
-## Problem
-
-Teams exploring media authenticity need more than a raw model score — they need a clear API surface, caching, rate limiting, and **verifiable signed responses**.
-
----
+Most "is this image AI?" tools stop at a score. I wanted a small API with a clear request shape, caching, optional rate limiting, and signed responses that could be checked independently.
 
 ## Stack
 
 Next.js API routes · TypeScript · Hugging Face Inference API · Vitest
 
----
+## How it works (high level)
 
-## Architecture
+1. Validate upload (size, type, dimensions)
+2. Hash the file and check cache
+3. Run single or ensemble detector mode
+4. Sign a canonical payload and return the record
+5. Verify endpoint recomputes the signature and compares
 
-```
-Client upload
-    → validate (size/type/dimensions)
-    → hash → cache lookup
-    → detector orchestrator (single | ensemble)
-    → signed authenticity record
-    → optional POST /api/verify
-```
+Audio and video types exist in the types but only image detectors are implemented today.
 
-**Core modules:** orchestrator, detector registry, cache, signer (HMAC-SHA256 over canonical payload).
+## What was hard
 
----
+- Keeping the response shape stable while refactoring from a flat payload to a detector registry
+- Making verify logic use constant-time comparison on the signed fields
+- Documenting honest scope (image-only) without overselling ensemble modes
 
-## Key Features
+## Status
 
-- `POST /api/analyze` and batch endpoint (max 5 files)  
-- Single and ensemble detector modes  
-- File-hash caching (TTL configurable)  
-- Optional API key + in-memory rate limiting  
-- Built-in test UI at localhost for manual verification  
-- Vitest coverage for analyze + verify paths  
-
----
-
-## Technical Decisions
-
-- **Signed records** — downstream systems can verify independently  
-- **Detector abstraction** — supports multiple Hugging Face image models  
-- **Honest scope** — audio/video types stubbed; image path only implemented  
-
----
-
-## Outcome
-
-- Public repository with documented API and tests  
-- [insert adoption metric if any]  
-- [insert live demo URL if deployed]  
-
----
-
-## Screenshots Needed
-
-| File | Description | Priority |
-|------|-------------|----------|
-| `media-auth-01-test-ui.png` | Built-in test UI | Required |
-| `media-auth-02-api-flow-diagram.png` | Pipeline diagram | Required |
-| `media-auth-03-verify-response.png` | Verify endpoint proof | Helpful |
-
----
+Public repo with tests and a built-in test UI for local manual checks.
 
 ## Links
 
-- **Repository:** [media-auth-api](https://github.com/ChrisHorn-Dev/media-auth-api)  
-- **Portfolio:** [chrisos.dev](https://chrisos.dev)  
+- [Repository](https://github.com/ChrisHorn-Dev/media-auth-api)
+- [Portfolio](https://chrisos.dev)
