@@ -223,6 +223,16 @@ The result is **operationally usable** for a **bounded** environment: **MVP-read
 
 ---
 
+## 10. Related: Elite Touch Proposal App
+
+Separate **private repository** (`elite-touch-proposals`): internal scope-of-work and **branded PDF proposal generator** for Elite Touch sales and onboarding. Complements this client/ops portal but is not the same product surface.
+
+**Stack:** Next.js · Prisma · `@react-pdf/renderer` · NextAuth
+
+**Public positioning:** Reference as related internal tooling; optional PDF screenshots if client approves.
+
+---
+
 ## Tech stack (from repository)
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS · Prisma · SQLite (default) / PostgreSQL (production target) · Twilio · Resend · HubSpot CRM API · Zod

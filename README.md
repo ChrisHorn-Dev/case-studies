@@ -62,4 +62,75 @@ React · TypeScript · Vite · React Router · Tailwind · TanStack Query · Sup
 
 ---
 
-Additional case studies will be added over time as I’m able to share more work publicly.
+### SiteOS — Construction execution intelligence
+
+Full-stack **construction intelligence platform**: FastAPI backend, Celery workers, multi-persona Next.js dashboards, Expo mobile, ML/CV and LLM-assisted workflows. Private repo; public architecture write-up.
+
+**Stack**
+
+FastAPI · Celery · PostgreSQL · TimescaleDB · Next.js · Expo · scikit-learn · Claude API
+
+**Status:** Draft case study · Private repo
+
+→ **[Read the draft case study](./siteos.md)**
+
+---
+
+### Regen Profits Sales App — Mobile sales PWA
+
+Mobile-first **PWA** for sales reps and admins: dashboards, leaderboards, sales logging, admin command center. Client work — anonymized in public materials by default.
+
+**Stack**
+
+Next.js · TypeScript · Supabase · Tailwind CSS · PWA
+
+**Status:** Draft case study · Private repo · Staging deployment
+
+→ **[Read the draft case study](./regen-profits-sales-app.md)**
+
+---
+
+### Remember Me — Relationship gifting MVP
+
+Consumer **Phase 1 MVP**: wishlists, reminders, events, and Thinking of You gift drafts with honest scope boundaries and demo mode.
+
+**Stack**
+
+Next.js · TypeScript · Supabase · Tailwind CSS
+
+**Status:** Draft case study · Private repo
+
+→ **[Read the draft case study](./remember-me.md)**
+
+---
+
+### Media Authenticity API
+
+Public **image authenticity API** with detector-based analysis, caching, and HMAC-signed verification endpoint. Code is public; this write-up explains system design.
+
+**Stack**
+
+Next.js API · TypeScript · Hugging Face · Vitest
+
+**Status:** Published overview · [Public repo](https://github.com/ChrisHorn-Dev/media-auth-api)
+
+→ **[Read the case study overview](./media-auth-api.md)**
+
+---
+
+## Index by status
+
+| Project | Case study | Repo visibility |
+|---------|------------|-----------------|
+| Physician Connection | [Full](./physician-connection.md) | Private |
+| Elite Touch Client Portal | [Full](./elite-touch-cleaning.md) | Private |
+| Elite Touch Proposal App | Section in Elite Touch study | Private |
+| SiteOS | [Draft](./siteos.md) | Private |
+| Cape Fear Web Co (+ portal) | [Full](./cape-fear-web-co.md) | Private site live |
+| Regen Profits Sales App | [Draft](./regen-profits-sales-app.md) | Private |
+| Remember Me | [Draft](./remember-me.md) | Private |
+| Media Authenticity API | [Overview](./media-auth-api.md) | **Public** |
+
+## Asset requests
+
+See **[PROJECT_ASSET_REQUESTS.md](./PROJECT_ASSET_REQUESTS.md)** for screenshot and video checklists per project.
