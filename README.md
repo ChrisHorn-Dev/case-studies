@@ -45,6 +45,5 @@ These are accounted for in my portfolio ([chrisos.dev](https://chrisos.dev)) but
 - **SiteOS** — construction dashboard system (private repo)
 - **Regen Profits Sales App** — mobile sales PWA (private repo, client work)
 - **Remember Me** — consumer MVP for reminders and wishlists (private repo)
-- **Genesis Mastery**, **Wilmington Engine**, **Visual Conversations**, **Pathbound Mobile** — private repos / lab work
 
 More may be added when the write-ups are ready.
