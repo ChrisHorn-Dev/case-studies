@@ -1,24 +1,38 @@
 # Product Case Studies
 
-Selected write-ups for software I've worked on. Source code for many of these projects is private, so these focus on what the system does, how it's built, and what was hard — not proprietary implementation details.
+Architecture write-ups for software I've built and shipped. Source code for many projects is private, so these focus on what the system does, how it's built, what was hard, and what tradeoffs were made — not proprietary implementation details.
 
-## Case studies
+**Portfolio:** [chrisos.dev](https://chrisos.dev) · **GitHub:** [@ChrisHorn-Dev](https://github.com/ChrisHorn-Dev)
+
+---
+
+## Flagship
 
 ### [Physician Connection Platform](./physician-connection.md)
 
-Healthcare SaaS for rep–practice appointment coordination, calendars, and admin workflows.
+Multi-role healthcare SaaS for rep–practice appointment coordination — guided booking, role-based dashboards, Cal.com integration, and production migration off Oracle-hosted infrastructure.
 
 **Stack:** Next.js · TypeScript · Drizzle ORM · Better Auth · Cal.com · PostgreSQL (Neon) · Vercel · Railway
 
 ---
 
+### [SiteOS — Construction Intelligence Platform](./siteos.md)
+
+Construction portfolio and project intelligence — field workflows, ingestion pipelines, executive dashboards, document intelligence, and mobile capture. Private repo; public architecture write-up.
+
+**Stack:** FastAPI · Celery · PostgreSQL · TimescaleDB · Next.js · Expo · Redis
+
+---
+
 ### [Elite Touch Cleaning — Client & Operations Portal](./elite-touch-cleaning.md)
 
-Client portal and admin ops layer for a commercial cleaning company: typed service requests, SOS path, notifications, and CRM sync.
+Client ops portal for typed service requests, SOS path, admin triage, notifications, and CRM sync. Proposal/PDF generator in the same client ecosystem.
 
 **Stack:** Next.js · TypeScript · Prisma · Twilio · Resend · HubSpot
 
 ---
+
+## Additional
 
 ### [Cape Fear Web Co — Studio site & client portal](./cape-fear-web-co.md)
 
@@ -32,18 +46,23 @@ Live site: [capefearweb.co](https://capefearweb.co)
 
 ### [Media Authenticity API](./media-auth-api.md)
 
-Short design overview for the public [media-auth-api](https://github.com/ChrisHorn-Dev/media-auth-api) repo — signed image analysis and verification.
+Signed image analysis with a verification endpoint — explore tamper-evident authenticity results instead of opaque model scores.
 
 **Stack:** Next.js API · TypeScript · Hugging Face · Vitest
 
+Repo: [media-auth-api](https://github.com/ChrisHorn-Dev/media-auth-api)
+
 ---
 
-## Other projects (no public write-up yet)
+## Private work (portfolio only)
 
-These are accounted for in my portfolio ([chrisos.dev](https://chrisos.dev)) but don't have finished public case studies here yet:
+These appear in [chrisos.dev](https://chrisos.dev) but do not have finished public case studies yet:
 
-- **SiteOS** — construction dashboard system (private repo)
 - **Regen Profits Sales App** — mobile sales PWA (private repo, client work)
 - **Remember Me** — consumer MVP for reminders and wishlists (private repo)
 
-More may be added when the write-ups are ready.
+---
+
+## About these write-ups
+
+I publish case studies when code cannot be public — the same material I'd use in a design review: problem context, system boundaries, infrastructure decisions, and lessons learned. No invented metrics; no client secrets.
