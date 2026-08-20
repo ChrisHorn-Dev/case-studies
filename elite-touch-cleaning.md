@@ -1,238 +1,104 @@
-# Elite Touch Cleaning — Client & Operations Portal (MVP)
+# Elite Touch Cleaning — Proposals & Operations Portal
 
-## 1. Overview
+## Overview
 
-This is not a contact form. It is a **service operations system** for **Elite Touch Cleaning Services**: a **mobile-first client portal** paired with an **internal operations layer** where facility contacts create **typed work** (issues, notes, supply requests), submit **feedback** on a separate track, and use a dedicated **SOS** path for emergencies.
+Elite Touch Cleaning Services needed more than a contact form. Cape Fear Web Co delivered **two complementary systems**:
 
-Submissions persist as **structured data** (Prisma schema targets relational Postgres; **SQLite** in the default checkout). Operations are notified via **SMS** and **email** using environment-configured recipient lists, with each delivery attempt recorded as a **`NotificationEvent`**.
+1. An **internal proposal builder** that turns structured service inputs into **branded multi-section PDFs**.
+2. A **live client and operations portal** on a **custom client domain** for typed requests, SOS emergencies, ops triage, SMS/email notifications, and audit history.
 
-The code lives in a **private** repository (`elite-touch-client-portal`). This write-up reflects the **implementation** and a **client MVP status document**, excluding credentials, tenant data, and internal business processes.
+A separate **read-only HubSpot forensic audit** mapped CRM risk before any destructive cleanup.
 
----
+This write-up reflects **current shipped maturity** (not the earlier shared-password MVP framing). Credentials, tenant data, and private commercial terms are excluded.
 
-## 2. Problem Context
-
-Without a system, client communication fragments across **phone calls, inbox threads, and ad hoc messages**. Nothing becomes a **durable record** by default. **Feedback** mixes with **operational issues**, **urgency** is ambiguous, and follow-up depends on **individual memory** rather than system behavior.
-
-This fails in predictable ways:
-
-- **No system of record** — issues are not consistently tracked or auditable.
-- **Lost or delayed feedback** — smaller problems go unreported or surface too late.
-- **Mixed signal** — feedback, requests, and emergencies share the same channels.
-- **Reactive operations** — follow-up depends on who saw what, not a defined lifecycle.
-
-The MVP replaces that with:
-
-- **Structured requests** with persisted threads.
-- A **separate feedback channel** outside the operational queue.
-- A **distinct SOS path** with its own type, priority, and notification handling.
-
-The goal is not feature expansion. It is replacing **invisible, inconsistent workflows** with something **explicit and reliable**.
+**Private repos:** `elite-touch-proposals`, `elite-touch-client-portal`.
 
 ---
 
-## 3. System Overview
+## The situation
 
-**Stack:** Next.js App Router, React 19, TypeScript, Tailwind, Prisma.
+The business operated across:
 
-The default datasource is **SQLite** for local development. **Production is intended to use PostgreSQL** by changing the Prisma datasource provider in `schema.prisma`—**not** an automated migration pipeline shipped in this repository.
+- Excel / Word / PDF proposal reference packets
+- Phone and email for client issues and emergencies
+- HubSpot as a large, complex system of record
 
-**Implemented end-to-end**
-
-- Route handlers under `app/api/*` for auth, contact requests, SOS, feedback, check-ins, and HubSpot sync.
-- **Cookie-based sessions:**
-  - Client session via known email → **httpOnly** cookie with client id.
-  - Admin session via shared **`ADMIN_PASSWORD`**.
-- **Client UI:** Launcher + modal-based actions (`components/client/*`); gated `/client/*` routes.
-- **Admin UI:** Request queue (open / urgent / closed); request detail (thread, attachments, notifications); feedback list and check-in panel.
-- **Notifications:** Centralized fan-out (`notify-ops.ts`) to Twilio (SMS) and Resend (email), gated by **`MOCK_INTEGRATIONS`**; per-recipient **`NotificationEvent`** persistence.
-- **HubSpot:** Read + upsert via `POST /api/hubspot/sync`; **`Client`** + **`HubSpotSyncRecord`** persistence.
-
-**Scaffolded or not wired**
-
-- **`OpsUser`** model exists but is **not** used for authentication or RBAC.
-
-**Stubbed / placeholder**
-
-- Twilio webhook (`/api/webhooks/twilio`): logs payload only; returns empty TwiML.
-- HubSpot webhook: logs request only.
-- **`firstResponseAt`** exists but is **not** written by application code.
-- Check-in **“responded”** state is defined in the enum but **not** updated by the webhook.
+Not every workflow was broken — but quoting and client ops were expensive, inconsistent, and hard to audit.
 
 ---
 
-## 4. Core Workflows
+## Before → Intervention → After
 
-### A. Standard requests (issue, note, supplies)
+### Problem 1 — Proposal creation
 
-**Input:** Client submits **multipart** to `/api/contact-requests` (session required). **Zod** validation enforces `type`, `subject`, and `message`.
+**Before:** Staff assembled proposals from spreadsheet specs and document templates. Packets were hard to keep consistent; contract/scope edits were easy to get wrong.
 
-**System behavior:**
+**Intervention:** Shipped an authenticated proposal wizard (client → location → type → property → scope → pricing → contract → review) with scope catalogs derived from Elite Touch Excel reference work, role-aware contract controls, and `@react-pdf/renderer` export for draft (watermarked) vs client-ready PDFs.
 
-- Creates **`ContactRequest`** (`open`, `normal` priority).
-- Creates initial **`ContactMessage`** (`senderType: client`).
-- Optional image attachment stored via `lib/uploads.ts` → `public/uploads`; **`Attachment`** linked to request and message.
+**After:** Proposal creation became a **repeatable software workflow** rather than ad-hoc document assembly.
 
-**Downstream:**
-
-- **`notifyOpsNewRequest`** sends SMS + email to configured recipients.
-- Each attempt recorded as a **`NotificationEvent`**.
-
-**UI mapping:**
-
-- Report issue → `service_issue`
-- Note → `general` with fixed subject
-- Supplies → `update` with derived subject
-
-### B. SOS (emergency path)
-
-**Input:** `POST /api/sos` with `{ message, confirmed: true }`.
-
-**System behavior:**
-
-- Creates **`ContactRequest`** (`type: emergency`, `priority: emergency`).
-- Creates initial message.
-- Triggers **`notifyOpsEmergency`** with distinct notification copy.
-
-This path bypasses normal request handling semantics—**urgency is encoded in both data and notification behavior**.
-
-### C. Feedback (separate track)
-
-**Input:** `POST /api/feedback` with rating (1–5) and optional comment.
-
-**System behavior:**
-
-- Inserts **`Feedback`** row.
-- Rating **5** → `routedToPublicReview: true`.
-
-**UX distinction:**
-
-- `/client/feedback` can show a **Google review** link when `NEXT_PUBLIC_GOOGLE_REVIEW_URL` is configured.
-- Modal-based feedback submission **does not** include that CTA.
-
-Feedback is **intentionally not** part of the request lifecycle.
-
-### D. Admin triage
-
-**Input:** `PATCH /api/contact-requests/[id]` with optional `status`, `priority`, `opsNote`.
-
-**System behavior:**
-
-- Updates request state.
-- Sets **`closedAt`** when closed.
-- Appends ops note as **`ContactMessage`** (`senderType: ops`).
-
-**Surface:**
-
-- Filtered queues (open / urgent / closed).
-- Detail view: message thread, attachments, notification history.
-
-**`firstResponseAt` is not populated** by this flow.
-
-### E. HubSpot sync
-
-**Input:** `POST /api/hubspot/sync` with `hubspotContactId` or `email`.
-
-**System behavior:**
-
-- If token missing (or mock mode) → **422** response from the route with a clear error body.
-- Otherwise: fetch or search contact, **upsert** `Client`, persist **`HubSpotSyncRecord`** with raw payload.
-
-**No** background processing or automation layer.
-
-### F. Check-in SMS
-
-**Input:** `POST /api/checkins/send` with `clientId`.
-
-**System behavior:**
-
-- Creates **`CheckInEvent`** (`queued` → `sent` / `failed`).
-- Requires **`Client.phone`**.
-- Sends fixed SMS template.
-- Logs **`NotificationEvent`**.
-
-**No** cron, scheduling, or inbound parsing.
+**Honesty:** Proposal **pricing lines remain manual** in production. Pricing automation was researched with the client; it was **not shipped**. Do not claim Proposify (or any vendor) was replaced unless separately confirmed.
 
 ---
 
-## 5. Architecture & Technical Design
+### Problem 2 — Client operations
 
-**Routing / gating:** `middleware.ts` enforces access control for `/client/*` and `/admin/*`.
+**Before:** Service issues, feedback, and emergencies mixed across phone and inbox. Follow-up depended on who saw which thread.
 
-**Sessions:** Cookie-based (`getClientIdFromCookies`, `getAdminFromCookies`); route handlers **re-check** permissions before mutations.
+**Intervention:** Built a production portal with:
 
-**Validation:** Shared **Zod** schemas (`lib/schemas/api.ts`).
+- Client access (magic link / session flows)
+- Typed requests (issues, notes, supplies) with threads and attachments
+- Distinct **SOS** path with dedicated notification behavior
+- Ops triage queues (open / urgent / closed), assignment, notes, CSV export
+- **Twilio** SMS (including check-in loops and inbound handling) after **US toll-free verification approved**
+- **Resend** email
+- Notification attempt logging
+- PWA install path for ops/clients
+- Live on the client’s **custom domain**
 
-**Notifications:** Central module (`notify-ops.ts`) manages fan-out + persistence; provider wrappers isolate **Twilio** and **Resend**.
-
-**Data model:** Prisma models encode request type / status / priority, message sender type, notification channel / status, check-in lifecycle. **`Client`** is the identity anchor.
-
----
-
-## 6. Key Engineering Contributions
-
-- **Implemented the request lifecycle:** typed `ContactRequest` + threaded `ContactMessage` model; attachment linkage for issue reporting; admin mutation flows with state transitions.
-- **Established a distinct emergency path:** dedicated `/api/sos` route; emergency-specific enums and **`notifyOpsEmergency`** logic.
-- **Built the notification pipeline:** configurable recipient lists; per-recipient logging (`NotificationEvent`); **mock mode** for provider isolation.
-- **Developed the client-side action model:** launcher + modal flows; query-param entry (`?open=`).
-- **Delivered admin triage surfaces:** filtered queues; thread + attachment visibility; notification audit context.
-- **Integrated HubSpot read + sync path:** admin-triggered upsert; audit record persistence (`HubSpotSyncRecord`).
-- **Implemented manual check-in:** API + UI backed by **`CheckInEvent`**.
-- **Scoped non-MVP areas explicitly:** webhooks, RBAC, and automation left as **stubs** rather than half-finished behavior.
+**After:** Client issues and emergencies became **durable records** with triage and notification history — not inbox archaeology.
 
 ---
 
-## 7. Constraints & Tradeoffs
+### Problem 3 — CRM visibility
 
-- **Shared admin authentication:** single **`ADMIN_PASSWORD`**; **no RBAC** or per-user audit beyond `senderType: ops` on messages.
-- **Broadcast notifications:** all recipients receive all alerts; **no routing logic** in code.
-- **SQLite default:** chosen for **local/dev simplicity**; Postgres is a **configuration-level** swap, not migration-driven in-repo.
-- **Disk-based uploads:** stored under `public/uploads`; **no** external object storage or scanning.
-- **Partial HubSpot integration:** read + manual sync only; **no** webhook-driven updates.
-- **Unused data model elements:** `OpsUser`, `firstResponseAt`, and check-in response state **not wired** into runtime behavior.
+**Before:** HubSpot held a large footprint (contacts, companies, deals, workflows, ownership quirks). Mutating it without a map was high-risk.
 
----
+**Intervention:** Ran a **read-only** complete-current-state discovery (zero mutations required) and designed a phased remediation plan with hard gates.
 
-## 8. System Maturity & Delivery
+**Scale observed (point-in-time snapshot class):** roughly **14k contacts**, **~4.6k companies**, **~2.2k deals**, and **dozens of workflows**.
 
-**MVP-complete in this repository:**
-
-- Client authentication via known email.
-- Structured request + SOS + feedback persistence.
-- Admin triage workflows with threaded context.
-- Outbound notifications with per-attempt logging.
-- Optional live integrations (Twilio, Resend).
-- HubSpot-assisted client synchronization.
-- Manual check-in messaging.
-
-**Scaffolded or future-facing:**
-
-- Webhook processing (Twilio, HubSpot).
-- Response tracking (`firstResponseAt`, check-in reply state).
-- Role-based admin model.
-
-The result is **operationally usable** for a **bounded** environment: **MVP-ready**, not positioned as a fully scaled production system.
+**After:** The business has an evidence-based cleanup design. **Audit/remediation design ≠ cleanup completed** — no merges/deletes/stage moves without written approval.
 
 ---
 
-## 9. Lessons / Engineering Takeaways
+## Verified
 
-- **Structured communication systems** outperform informal channels when operations require **accountability**.
-- **Emergency paths** should be separated at **data and notification** layers—not only in UI.
-- **Mockable integrations** enable realistic development and demos **without** hard provider dependency.
+- Live client/ops portal on a custom client domain
+- Branded multi-section proposal PDFs from a structured wizard
+- Twilio US toll-free verification reached approved status
+- Resend used for authentication/notification email
+- HubSpot read-only discovery at the scale class above
+- No HubSpot mutations until written gate approval
+- Proposal pricing in production remains manual (automation not shipped)
+- The two apps are complementary but architecturally separate (no shared proposal↔portal deal IDs)
+
+## Still measuring
+
+- Minutes per proposal before vs after
+- Monthly proposal throughput / win-rate change
+- SOS time-to-first-response improvement
+- Employee hours saved
 
 ---
 
-## 10. Related: Elite Touch Proposal App
+## Stack (representative)
 
-Separate **private repository** (`elite-touch-proposals`): internal scope-of-work and **branded PDF proposal generator** for Elite Touch sales and onboarding. Complements this client/ops portal but is not the same product surface.
-
-**Stack:** Next.js · Prisma · `@react-pdf/renderer` · NextAuth
-
-**Public positioning:** Reference as related internal tooling; optional PDF screenshots if client approves.
+Next.js · TypeScript · Prisma · PostgreSQL · Twilio · Resend · HubSpot · React PDF · Vercel
 
 ---
 
-## Tech stack (from repository)
+## CTA
 
-Next.js (App Router) · React · TypeScript · Tailwind CSS · Prisma · SQLite (default) / PostgreSQL (production target) · Twilio · Resend · HubSpot CRM API · Zod
+If your team still quotes from spreadsheets or runs client issues through phone/email, send a project brief to Cape Fear Web Co — we’ll say what we’d audit, automate, or build.
