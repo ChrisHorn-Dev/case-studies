@@ -8,9 +8,25 @@ Architecture write-ups for software I've built and shipped. Source code for many
 
 ## Flagship
 
+### [Elite Touch Cleaning — Proposals & Operations Portal](./elite-touch-cleaning.md)
+
+Proposal/PDF workflow plus live client/ops portal (typed requests, SOS, triage, SMS/email) and HubSpot audit-first discovery.
+
+**Stack:** Next.js · TypeScript · Prisma · Twilio · Resend · HubSpot · React PDF
+
+---
+
+### [Regen Profits — Sales Ops, Territory & Portal](./regen-profits.md)
+
+Field sales PWA, CRM-backed territory map (national ZCTA geometry), and owned website/portal stack handed to client infrastructure.
+
+**Stack:** Next.js · Supabase · GoHighLevel · Clerk · Neon · Vercel
+
+---
+
 ### [Physician Connection Platform](./physician-connection.md)
 
-Multi-role healthcare SaaS for rep–practice appointment coordination — guided booking, role-based dashboards, Cal.com integration, and production migration off Oracle-hosted infrastructure.
+Multi-role healthcare SaaS for rep–practice appointment coordination — production hardening for Cal.com conversion, reconcile, and concurrency (not a founding-engineer claim).
 
 **Stack:** Next.js · TypeScript · Drizzle ORM · Better Auth · Cal.com · PostgreSQL (Neon) · Vercel · Railway
 
@@ -18,17 +34,9 @@ Multi-role healthcare SaaS for rep–practice appointment coordination — guide
 
 ### [SiteOS — Construction Intelligence Platform](./siteos.md)
 
-Construction portfolio and project intelligence — field workflows, ingestion pipelines, executive dashboards, document intelligence, and mobile capture. Private repo; public architecture write-up.
+Construction portfolio and project intelligence — ingestion pipelines, executive dashboards, document intelligence. Private repo; public architecture write-up. Expo field app is **not** claimed as shipped.
 
-**Stack:** FastAPI · Celery · PostgreSQL · TimescaleDB · Next.js · Expo · Redis
-
----
-
-### [Elite Touch Cleaning — Client & Operations Portal](./elite-touch-cleaning.md)
-
-Client ops portal for typed service requests, SOS path, admin triage, notifications, and CRM sync. Proposal/PDF generator in the same client ecosystem.
-
-**Stack:** Next.js · TypeScript · Prisma · Twilio · Resend · HubSpot
+**Stack:** FastAPI · Celery · PostgreSQL · TimescaleDB · Next.js · Redis
 
 ---
 
@@ -56,10 +64,11 @@ Repo: [media-auth-api](https://github.com/ChrisHorn-Dev/media-auth-api)
 
 ## Private work (portfolio only)
 
-These appear in [chrisos.dev](https://chrisos.dev) but do not have finished public case studies yet:
+These appear in [chrisos.dev](https://chrisos.dev) but do not have finished long-form public case studies yet:
 
-- **Regen Profits Sales App** — mobile sales PWA (private repo, client work)
 - **Remember Me** — consumer MVP for reminders and wishlists (private repo)
+
+Regen Profits now has a short public write-up: [regen-profits.md](./regen-profits.md).
 
 ---
 

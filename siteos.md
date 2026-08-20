@@ -6,7 +6,7 @@ SiteOS is a **construction portfolio and project intelligence platform** for hig
 
 The product combines **tenant project data**, **field input**, **external market signals** (federal awards, labor/material benchmarks, weather), and **document intelligence** into dashboards and workflows leadership can actually use in a weekly review — with honest labeling of data grain and confidence.
 
-Work spans a **Python/FastAPI backend** with Celery workers, a **Next.js dashboard layer**, an **Expo mobile client** for field workflows, and ingestion pipelines that land structured data in PostgreSQL and time-series stores.
+Work spans a **Python/FastAPI backend** with Celery workers, a **Next.js dashboard layer**, and ingestion pipelines that land structured data in PostgreSQL and time-series stores. A dedicated Expo/React Native field client has been described in planning materials but is **not present as a shipped app in the current repository** — treat mobile field capture as aspirational unless a `mobile/` (or equivalent) surface appears.
 
 The codebase lives in a **private** repository. This write-up is non-proprietary and focuses on system design, architectural decisions, and product tradeoffs.
 
@@ -37,7 +37,7 @@ SiteOS is a multi-surface platform with a shared data model and ingestion backbo
 - **Project manager:** schedule, RFIs, invoices, document ingest, project Q&A with citations
 - **Cost intelligence:** benchmark comparison with explicit national vs regional labeling
 - **Signal coverage:** collector health, freshness, and operator-visible ingestion status
-- **Field mobile (Expo):** daily reports, site context, lightweight capture workflows
+- **Field capture (planned):** daily reports / lightweight jobsite workflows — **not shipped as an Expo app in the current repo**
 
 ### Backend platform
 
@@ -48,10 +48,10 @@ SiteOS is a multi-surface platform with a shared data model and ingestion backbo
 - **Cloudflare R2** for photos, documents, and ML artifacts
 - **Claude API** and rules/templates for explainable document and RFI analysis where keys are configured
 
-### Frontend & mobile
+### Frontend
 
 - **Next.js 14** persona dashboards with streaming-friendly layouts for weak job-site connectivity
-- **Expo / React Native** field app aligned to the same project and daily-report model
+- **Mobile field app:** documented as a product direction; **not currently implemented** as Expo/React Native in-repo
 
 ### Infrastructure
 
@@ -120,7 +120,7 @@ Builders organize messy project material (folder ingest, PDF/TXT/DOCX). Extracte
 
 ### Field → platform loop
 
-Daily reports, weather flags, and mobile capture feed the same longitudinal project record ingestion and UI both read — so usage compounds instead of resetting each session.
+Daily reports, weather flags, and document/photo capture feed the same longitudinal project record ingestion and UI both read — so usage compounds instead of resetting each session. A dedicated mobile field client remains a product direction, not a shipped Expo surface in the current repo.
 
 ### Decision packets
 
@@ -147,7 +147,7 @@ At this stage, the platform includes:
 - Celery workers, beat scheduling, and operator-visible job monitoring patterns
 - Document intelligence, project knowledge, and decision-packet product phases on `main`
 - Local Docker stack and demo runbooks for reproducible environments
-- Mobile field client aligned to shared project/daily-report models
+- Mobile field app: planned / documented direction — **not** present as Expo/React Native in the current repository tree
 
 ---
 
@@ -163,6 +163,6 @@ At this stage, the platform includes:
 ## Tech Stack
 
 Python 3.11 · FastAPI · Celery · Redis · PostgreSQL · Supabase · TimescaleDB  
-Next.js 14 · React · TypeScript · Expo · React Native  
+Next.js 14 · React · TypeScript  
 scikit-learn · XGBoost · Claude API · Cloudflare R2  
 Docker · Vercel · Railway · Upstash
