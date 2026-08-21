@@ -2,7 +2,7 @@
 
 Architecture write-ups for software I've built and shipped. Source code for many projects is private, so these focus on what the system does, how it's built, what was hard, and what tradeoffs were made — not proprietary implementation details.
 
-**Portfolio:** [chrisos.dev](https://chrisos.dev) · **GitHub:** [@ChrisHorn-Dev](https://github.com/ChrisHorn-Dev)
+**Portfolio:** [capefearweb.co](https://www.capefearweb.co) · **Architecture portfolio:** [chrisos.dev](https://chrisos.dev) · **GitHub:** [@ChrisHorn-Dev](https://github.com/ChrisHorn-Dev)
 
 ---
 
